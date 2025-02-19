@@ -1,23 +1,36 @@
-FROM alpine:latest AS builder
+# 这里我们使用 ARG 来接收传入的架构参数
+ARG ARCH
+
+FROM --platform=$BUILDPLATFORM alpine:latest AS builder
 
 WORKDIR /
 
+# 设置基本环境变量
 RUN export URL=https://api.github.com/repos/pymumu/smartdns/releases/latest \
     && export OS="linux" \
     && apk --no-cache --update add curl \
-    && wget --tries=3 $(curl -s $URL | grep browser_download_url | egrep -o 'http.+\.\w+' | grep -i "$(uname -m)" | grep -m 1 -i "$(echo $OS)") \
+    && echo "Building for architecture: $ARCH" \
+    # 根据传入的架构值进行不同操作
+    && if [ "$ARCH" = "aarch64" ]; then \
+        DOWNLOAD_URL="https://github.com/pymumu/smartdns/releases/download/Release46/smartdns.1.2024.06.12-2222.aarch64-linux-all.tar.gz"; \
+      elif [ "$ARCH" = "x86_64" ]; then \
+        DOWNLOAD_URL="https://github.com/pymumu/smartdns/releases/download/Release46/smartdns.1.2024.06.12-2222.x86_64-linux-all.tar.gz"; \
+      else \
+        echo "Unsupported architecture"; exit 1; \
+      fi \
+    && wget --tries=3 $DOWNLOAD_URL \
     && tar zxvf smartdns.*.tar.gz \
     && mkdir -p /dist/smartdns \
     && mv smartdns/usr/sbin /dist/smartdns \
     && rm -rf smartdns*
 
-# step 2
-FROM adguard/adguardhome:latest AS adguardhomeBuilder
+# Step 2: Build AdGuardHome
+FROM --platform=$BUILDPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
 
-# step 3
-FROM alpine:latest
+# Step 3: Create final image
+FROM --platform=$TARGETPLATFORM alpine:latest
 
-LABEL maintainer="Zyao89 <zyao89@gmail.com>"
+LABEL maintainer="szqhan <szqhan@gmail.com>"
 
 COPY --from=adguardhomeBuilder /opt/adguardhome/AdGuardHome /opt/adguardhome/AdGuardHome
 # Update CA certs

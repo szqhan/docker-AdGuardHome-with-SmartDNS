@@ -1,0 +1,129 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - ${{ github.ref }}  # 使用变量来表示分支
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [arm64, amd64]  # 定义支持的架构
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Build image
+        env:
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+          ARCH: ${{ matrix.architecture }}  # 获取当前架构
+        run: |
+          docker build . --file Dockerfile --tag $IMAGE_NAME:${{ github.ref }} --build-arg ARCH=$ARCH
+
+      - name: Log into registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "${DOCKERHUB_TOKEN}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+
+      - name: Download image
+        env:
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          IMAGE_ID=$DOCKER_USERNAME/$IMAGE_NAME
+          docker save -o ${IMAGE_NAME}_${{ github.ref }}_${{ matrix.architecture }}.tar $IMAGE_ID:${{ github.ref }}
+
+
+name: Build Multi-Arch Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: your-dockerhub-username/your-image-name:latest
+          platforms: linux/amd64,linux/arm64
+
+
+
+name: Build Multi-Arch Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false  # 不推送到 Docker Hub
+          tags: your-dockerhub-username/your-image-name:latest
+          platforms: linux/amd64,linux/arm64
+
+      - name: Save amd64 image
+        run: |
+          docker save -o amd64_image.tar your-dockerhub-username/your-image-name:latest --platform linux/amd64
+
+      - name: Save arm64 image
+        run: |
+          docker save -o arm64_image.tar your-dockerhub-username/your-image-name:latest --platform linux/arm64
+
+      - name: Upload amd64 image
+        uses: actions/upload-artifact@v2
+        with:
+          name: amd64_image
+          path: amd64_image.tar
+
+      - name: Upload arm64 image
+        uses: actions/upload-artifact@v2
+        with:
+          name: arm64_image
+          path: arm64_image.tar
+
+
