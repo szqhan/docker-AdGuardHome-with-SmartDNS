@@ -22,4 +22,5 @@ RUN apk --no-cache --update add curl \
     && wget --tries=3 $DOWNLOAD_URL \
     && tar zxvf smartdns.*.tar.gz \
     && mkdir -p /dist/smartdns \
-    && mv smartdns/usr/sbin /dist/smartdns 
+    && mv smartdns/usr/sbin /dist/smartdns \
+    && rm -rf smartdns*
