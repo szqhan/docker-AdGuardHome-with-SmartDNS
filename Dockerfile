@@ -17,7 +17,6 @@ RUN apk --no-cache --update add curl \
                            egrep -o 'http.+\.\w+' | \
                            grep -i "$ARCH" | \
                            grep -i "\.tar\.gz" | \
-                           grep -i "aarch64" | \
                            grep -i "$OS"  \
     && wget --tries=3 $DOWNLOAD_URL \
     && tar zxvf smartdns.*.tar.gz \
