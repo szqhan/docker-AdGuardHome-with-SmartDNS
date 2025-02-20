@@ -20,4 +20,6 @@ RUN apk --no-cache --update add curl \
                            grep -i "aarch64" | \
                            grep -i "$OS" ) \
     && wget --tries=3 $DOWNLOAD_URL \
-    && tar zxvf smartdns.*.tar.gz
+    && tar zxvf smartdns.*.tar.gz \
+    && mkdir -p /dist/smartdns \
+    && mv smartdns/usr/sbin /dist/smartdns 
