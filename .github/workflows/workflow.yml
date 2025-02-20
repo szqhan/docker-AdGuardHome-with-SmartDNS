@@ -3,7 +3,7 @@ name: Build and Test
 on:
   push:
     branches:
-      - master
+      - v1
 
 jobs:
   build:
@@ -23,15 +23,6 @@ jobs:
       run: |
         docker build \
           --build-arg ARCH=$ARCHITECTURE \
+          --build-arg BUILDKIT_MULTI_PLATFORM=1 \
           --file Dockerfile \
-          --tag my-image:${{ matrix.architecture }} .
-
-    - name: Save image
-      run: |
-          docker save -o ${ARCHITECTURE}_image.tar my-image:${{ matrix.architecture }}
-
-    - name: Upload image
-      uses: actions/upload-artifact@v4
-      with:
-          name: ${{ matrix.architecture }}_image
-          path: ${{ matrix.architecture }}_image.tar
+          --tag smartdns:${{ matrix.architecture }} .
