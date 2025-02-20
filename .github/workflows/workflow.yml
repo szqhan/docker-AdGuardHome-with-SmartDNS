@@ -25,7 +25,7 @@ jobs:
     - name: Build Docker image
       run: |
         docker build \
-          --build-arg ARCH=$ARCHITECTURE \
+          --build-arg ARCH=${{ matrix.architecture }} \
           --build-arg BUILDKIT_MULTI_PLATFORM=1 \
           --file Dockerfile \
           --tag smartdns:${{ matrix.architecture }} .
