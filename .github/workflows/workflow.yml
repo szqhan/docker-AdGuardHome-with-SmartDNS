@@ -25,22 +25,13 @@ jobs:
           --build-arg ARCH=$ARCHITECTURE \
           --file Dockerfile \
           --tag my-image:${{ matrix.architecture }} .
-    - name: Save amd64 image
+
+    - name: Save image
       run: |
-          docker save -o amd64_image.tar your-dockerhub-username/your-image-name:latest --platform linux/amd64
+          docker save -o ${ARCHITECTURE}_image.tar my-image:${{ matrix.architecture }}
 
-    - name: Save arm64 image
-      run: |
-          docker save -o arm64_image.tar your-dockerhub-username/your-image-name:latest --platform linux/arm64
-
-    - name: Upload amd64 image
-      uses: actions/upload-artifact@v2
+    - name: Upload image
+      uses: actions/upload-artifact@v4
       with:
-          name: amd64_image
-          path: amd64_image.tar
-
-    - name: Upload arm64 image
-      uses: actions/upload-artifact@v2
-      with:
-          name: arm64_image
-          path: arm64_image.tar
+          name: ${{ matrix.architecture }}_image
+          path: ${{ matrix.architecture }}_image.tar
