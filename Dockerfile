@@ -12,4 +12,10 @@ ENV URL=https://api.github.com/repos/pymumu/smartdns/releases/latest \
 
 # 安装 curl 并下载对应架构的 SmartDNS
 RUN apk --no-cache --update add curl \
-    && echo "Building for architecture: $ARCH" 
+    && echo "Building for architecture: $ARCH" \
+    && DOWNLOAD_URL=$(curl -s $URL | grep browser_download_url | \
+                           egrep -o 'http.+\.\w+' | \
+                           grep -i "$ARCH" | \
+                           grep -i "\.tar\.gz" | \
+                           grep -i "aarch64" | \
+                           grep -i "$OS" ) 
