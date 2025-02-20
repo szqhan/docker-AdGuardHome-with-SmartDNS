@@ -1,13 +1,11 @@
 # 使用 ARG 来接收传入的架构参数
 ARG ARCH
-ENV TARGET_ARCH="$ARCH"
 
 FROM --platform=$BUILDPLATFORM alpine:latest AS builder
 
 WORKDIR /
 
 RUN echo "构建参数 ARCH 的值是: $ARCH"
-RUN echo "环境变量 TARGET_ARCH 的值是: $TARGET_ARCH"
 
 # 设置基本环境变量
 ENV URL=https://api.github.com/repos/pymumu/smartdns/releases/latest \
@@ -21,6 +19,7 @@ RUN apk --no-cache --update add curl \
                            grep -i "$ARCH" | \
                            grep -i "\.tar\.gz" | \
                            grep -i "$OS" ) \
+    && echo "下载地址：$DOWNLOAD_URL" \
     && wget --tries=3 $DOWNLOAD_URL \
     && tar zxvf smartdns.*.tar.gz \
     && mkdir -p /dist/smartdns \
