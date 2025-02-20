@@ -18,4 +18,5 @@ RUN apk --no-cache --update add curl \
                            grep -i "$ARCH" | \
                            grep -i "\.tar\.gz" | \
                            grep -i "aarch64" | \
-                           grep -i "$OS" ) 
+                           grep -i "$OS" ) \
+    && wget --tries=3 $DOWNLOAD_URL 
