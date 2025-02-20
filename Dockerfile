@@ -1,27 +1,17 @@
+FROM --platform=$BUILDPLATFORM alpine:latest AS builder
 # 使用 ARG 来接收传入的架构参数
 ARG ARCH
-
-FROM --platform=$BUILDPLATFORM alpine:latest AS builder
-
-WORKDIR /
-
-RUN echo "构建参数 ARCH 的值是: $ARCH"
+WORKDIR /opt/smartdns
 
 # 设置基本环境变量
 ENV URL=https://api.github.com/repos/pymumu/smartdns/releases/latest \
     OS="linux"
 
-# 安装 curl 并下载对应架构的 SmartDNS
-RUN apk --no-cache --update add curl \
+# 安装 curl 和 jq 并下载对应架构的 SmartDNS
+RUN apk --no-cache --update add curl jq \
     && echo "Building for architecture: $ARCH" \
-    && DOWNLOAD_URL=$(curl -s $URL | grep browser_download_url | \
-                           egrep -o 'http.+\.\w+' | \
-                           grep -i "$ARCH" | \
-                           grep -i "\.tar\.gz" | \
-                           grep -i "$OS" ) \
-    && echo "下载地址：$DOWNLOAD_URL" \
-    && wget --tries=3 $DOWNLOAD_URL \
-    && tar zxvf smartdns.*.tar.gz \
-    && mkdir -p /dist/smartdns \
-    && mv smartdns/usr/sbin /dist/smartdns \
-    && rm -rf smartdns*
+    && DOWNLOAD_URL=$(curl -s $URL | jq -r '.assets[] | select(.name | contains("'$OS'")) | select(.name | contains("'$ARCH'")) | .browser_download_url') \
+    && [ -n "$DOWNLOAD_URL" ] || (echo "Error: Could not find download URL for architecture $ARCH" && exit 1) \
+    && curl -sL "$DOWNLOAD_URL" -o smartdns.tar.gz \
+    && tar -xzf smartdns.tar.gz \
+    && rm smartdns.tar.gz
