@@ -14,7 +14,9 @@ RUN apk --no-cache --update add curl jq \
     && [ -n "$DOWNLOAD_URL" ] || (echo "Error: Could not find download URL for architecture $ARCH" && exit 1) \
     && curl -sL "$DOWNLOAD_URL" -o smartdns.tar.gz \
     && tar -xzf smartdns.tar.gz \
-    && rm smartdns.tar.gz
+    && mkdir -p /dist/smartdns  \
+    && mv smartdns/usr/sbin /dist/smartdns \
+    && rm -rf smartdns*
 
 # Step 2: Build AdGuardHome
 FROM --platform=$BUILDPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
