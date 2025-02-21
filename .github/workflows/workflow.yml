@@ -30,5 +30,5 @@ jobs:
     - name: Log into registry
       env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      run: echo "${DOCKERHUB_TOKEN}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+#          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      run: echo "$DOCKER_USERNAME"
