@@ -10,19 +10,23 @@ ENV URL=https://api.github.com/repos/pymumu/smartdns/releases/latest \
 # 安装 curl 和 jq 并下载对应架构的 SmartDNS
 RUN apk --no-cache --update add curl jq \
     && echo "Building for architecture: $ARCH" \
-    && DOWNLOAD_URL=$(curl -s $URL | jq -r '.assets[] | select(.name | contains("'$OS'")) | select(.name | contains("'$ARCH'")) | .browser_download_url') \
-    && [ -n "$DOWNLOAD_URL" ] || (echo "Error: Could not find download URL for architecture $ARCH" && exit 1) \
+    && DOWNLOAD_URL=$(curl -s $URL | jq -r --arg arch "$ARCH" '.assets[] | select(.name | contains("linux") and .name | contains($arch)) | .browser_download_url') \
+    && if [ -z "$DOWNLOAD_URL" ]; then \
+         echo "Error: Could not find download URL for architecture $ARCH" >&2; \
+         exit 1; \
+       fi \
     && curl -sL "$DOWNLOAD_URL" -o smartdns.tar.gz \
     && tar -xzf smartdns.tar.gz \
     && mkdir -p /dist/smartdns  \
     && mv smartdns/usr/sbin /dist/smartdns \
     && rm -rf smartdns*
 
+
 # Step 2: Build AdGuardHome
 FROM --platform=$BUILDPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
 
 # Step 3: Create final image
-FROM --platform=$TARGETPLATFORM alpine:latest
+FROM alpine:latest
 
 LABEL maintainer="szqhan <szqhan@gmail.com>"
 
