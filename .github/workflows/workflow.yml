@@ -33,14 +33,13 @@ jobs:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_USERNAME} --password-stdin
 
-    - name: Save amd64 image
+    - name: Save image
       run: |
-          docker save -o amd64_image.tar szqhan/my_private_repo:${{ matrix.architecture }} --platform linux/amd64
+          docker save -o smartdns_${{ matrix.architecture }}.tar smartdns:${{ matrix.architecture }}
 
-    - name: Upload amd64 image
-      uses: actions/upload-artifact@v2
+    - name: Upload image
+      uses: actions/upload-artifact@v4
       with:
-          name: amd64_image
-          path: amd64_image.tar
-
+          name: smartdns_${{ matrix.architecture }}_image
+          path: smartdns_${{ matrix.architecture }}.tar
 
