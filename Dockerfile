@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM alpine:latest AS builder
+FROM --platform=$TARGETPLATFORM alpine:latest AS builder
 # 使用 ARG 来接收传入的架构参数
 ARG ARCH
 WORKDIR /opt/smartdns
@@ -23,7 +23,7 @@ RUN apk --no-cache --update add curl jq \
 
 
 # Step 2: Build AdGuardHome
-FROM --platform=$BUILDPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
+FROM --platform=$TARGETPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
 
 # Step 3: Create final image
 FROM alpine:latest
