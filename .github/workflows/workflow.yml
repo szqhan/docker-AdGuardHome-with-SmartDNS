@@ -27,7 +27,20 @@ jobs:
           --build-arg BUILDKIT_MULTI_PLATFORM=1 \
           --file Dockerfile \
           --tag smartdns:${{ matrix.architecture }} .
-          
+
+    - name: Verify image architecture
+      run: |
+        image_tag="smartdns:${{ matrix.architecture }}"
+        expected_arch="${{ matrix.architecture }}" 
+        # 使用 docker inspect 验证架构 (方法一)
+        actual_arch=$(docker inspect --format='{{.Architecture}}' "$image_tag")
+        if [ "$actual_arch" = "$expected_arch" ]; then
+          echo "镜像架构验证成功：$actual_arch"
+        else
+          echo "镜像架构验证失败！期望：$expected_arch, 实际：$actual_arch"
+          exit 1
+        fi
+
     - name: Log into registry
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
