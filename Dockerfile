@@ -12,6 +12,7 @@ RUN apk --no-cache --update add curl jq \
     && echo "Building for architecture: $ARCH" \
     && DOWNLOAD_URL=$(curl -s $URL | jq -r '.assets[] | select(.name | contains("'$OS'")) | select(.name | contains("'$ARCH'")) | .browser_download_url') \
     && [ -n "$DOWNLOAD_URL" ] || (echo "Error: Could not find download URL for architecture $ARCH" && exit 1) \
+    && echo "下载地址：$DOWNLOAD_URL" \
     && curl -sL "$DOWNLOAD_URL" -o smartdns.tar.gz \
     && tar -xzf smartdns.tar.gz \
     && rm smartdns.tar.gz
