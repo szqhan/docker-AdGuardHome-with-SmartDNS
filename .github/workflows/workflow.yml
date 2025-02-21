@@ -43,3 +43,8 @@ jobs:
           name: smartdns_${{ matrix.architecture }}_image
           path: smartdns_${{ matrix.architecture }}.tar
 
+    - name: Create download link in summary
+      if: ${{ github.event_name == 'workflow_dispatch' }} # 仅在手动触发时显示
+      run: |
+        echo "## Download SmartDNS Images" >> $GITHUB_STEP_SUMMARY
+        echo "- [smartdns_${{ matrix.architecture }}](<tex>${{ steps.upload.outputs.artifact-path }})" >> $GITHUB_STEP_SUMMARY
