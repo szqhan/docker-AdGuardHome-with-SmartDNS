@@ -1,6 +1,7 @@
+ARG ARCH
 FROM --platform=$TARGETPLATFORM alpine:latest AS builder
 # 使用 ARG 来接收传入的架构参数
-ARG ARCH
+# ARG ARCH
 WORKDIR /opt/smartdns
 
 # 设置基本环境变量
