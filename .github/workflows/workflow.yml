@@ -27,8 +27,14 @@ jobs:
           --file Dockerfile \
           --tag smartdns:${{ matrix.architecture }} .
 
-    - name: Log into registry
-      env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      run: echo "${DOCKERHUB_TOKEN}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+    - name: Check Docker credentials
+      run: |
+        if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+          echo "DOCKER_USERNAME is not set"
+        exit 1
+        fi
+        if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+          echo "DOCKERHUB_TOKEN is not set"
+        exit 1
+        fi
+        echo "DOCKER_USERNAME and DOCKERHUB_TOKEN are set"
