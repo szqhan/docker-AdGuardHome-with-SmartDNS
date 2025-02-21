@@ -27,6 +27,7 @@ jobs:
           --build-arg ARCH=${{ matrix.architecture }} \
           --file Dockerfile \
           --tag smartdns:${{ matrix.architecture }} .
+          --load
 
     - name: Verify image architecture
       run: |
