@@ -9,9 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        architecture: [aarch64, x86_64]  # 定义 matrix 架构
+#    strategy:
+#      matrix:
+#        architecture: [aarch64, x86_64]  # 定义 matrix 架构
 
     steps:
     - name: Checkout code
@@ -42,9 +42,8 @@ jobs:
       run: |
         docker buildx build \
           --platform linux/amd64,linux/arm64 \
-          --build-arg ARCH=${{ matrix.architecture }} \
           --file Dockerfile \
-          --tag szqhan/smartdns:${{ matrix.architecture }} \
+          --tag szqhan/smartdns:latest \
           . \
           --push
           
