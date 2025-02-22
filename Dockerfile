@@ -20,14 +20,14 @@ RUN apk --no-cache --update add curl jq \
 
 
 # Step 2: Build AdGuardHome
-FROM --platform=$TARGETPLATFORM adguard/adguardhome:latest AS adguardhomeBuilder
+FROM --platform=$TARGETPLATFORM adguard/adguardhome:latest AS adguardhomebuilder
 
 # Step 3: Create final image
 FROM alpine:latest
 
 LABEL maintainer="szqhan <szqhan@gmail.com>"
 
-COPY --from=adguardhomeBuilder /opt/adguardhome/AdGuardHome /opt/adguardhome/AdGuardHome
+COPY --from=adguardhomebuilder /opt/adguardhome/AdGuardHome /opt/adguardhome/AdGuardHome
 
 # 更新 CA 证书并设置权限
 RUN apk --no-cache add ca-certificates libcap && \
