@@ -19,7 +19,7 @@ RUN apk --no-cache add ca-certificates libcap && \
     setcap 'cap_net_bind_service=+eip' /opt/adguardhome/AdGuardHome
 
 # 复制 SmartDNS (从 SmartDNS 镜像中复制可执行文件)
-COPY --from=smartdns /usr/sbin/smartdns /smartdns
+COPY --from=smartdns /usr/sbin/smartdns /smartdns/sbin/smartdns
 
 # 添加配置文件和启动脚本
 COPY files/config.conf /config.conf
