@@ -38,3 +38,14 @@ jobs:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_USERNAME} --password-stdin
 
+    - name: Build and push multi-architecture image
+      run: |
+        docker buildx build \
+          --platform linux/amd64,linux/arm64 \
+          --build-arg ARCH=${{ matrix.architecture }} \
+          --file Dockerfile \
+          --tag szqhan/smartdns:${{ matrix.architecture }} \
+          . \
+          --push
+
+
