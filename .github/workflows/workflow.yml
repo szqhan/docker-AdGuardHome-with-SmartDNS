@@ -47,5 +47,26 @@ jobs:
           --tag szqhan/smartdns:${{ matrix.architecture }} \
           . \
           --push
+          
+    - name: Verify image architecture
+      run: |
+        image_tag="smartdns:${{ matrix.architecture }}"
+        # 定义架构名称映射
+        declare -A arch_map
+        arch_map["x86_64"]="amd64"
+        arch_map["aarch64"]="arm64"
+        # 获取期望的架构，并进行映射
+        expected_arch="${{ matrix.architecture }}" 
+        if [[ ${arch_map[$expected_arch]} ]]; then
+          expected_arch=${arch_map[$expected_arch]}
+        fi
+        # 使用 docker inspect 验证架构 (方法一)
+        actual_arch=$(docker inspect --format='{{.Architecture}}' "$image_tag")
+        if [ "$actual_arch" = "$expected_arch" ]; then
+          echo "镜像架构验证成功：$actual_arch"
+        else
+          echo "镜像架构验证失败！期望：$expected_arch, 实际：$actual_arch"
+          exit 1
+        fi
 
 
